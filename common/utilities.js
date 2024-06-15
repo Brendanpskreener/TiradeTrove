@@ -1,3 +1,7 @@
+const { removeStopwords } = require('stopword')
+
+const lameWords = require('./words')
+
 function countWords(data) {
   const tally = data.messages.reduce((accumulator, message) => {
     const notFromMe = message.from !== 'Brendan Schreiner'
@@ -14,7 +18,9 @@ function countWords(data) {
       .replace(regex, ' ')
       .split(" ")
 
-    words.forEach((word) => {
+    const interestingWords = removeStopwords(words, lameWords)
+
+    interestingWords.forEach((word) => {
       //skip empty strings
       if (!word) return
       //tally up the words
