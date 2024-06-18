@@ -32,28 +32,26 @@ function countWords(messages) {
 }
 
 function getTirades(messages) {
-  const tirades = messages.reduce((accumulator, currentMessage, currentIndex, array) => {
-    const fromMe = currentMessage.from === 'Brendan Schreiner'
-    const plainText = !Array.isArray(currentMessage.text)
-    const hasLength = currentMessage.text.length
-    const previousMessage = array[currentIndex - 1]
-    // const sameAuthor = currentMessage.from === previousMessage?.from
-    const withinTimeframe = currentMessage.date_unixtime - previousMessage?.date_unixtime <= 60
+  const tirades = messages
+    .filter((message, index, array) => {
+      const fromMe = message.from === 'Brendan Schreiner'
+      const plainText = !Array.isArray(message.text)
+      const hasLength = message.text.length
+      const previousMessage = array[index - 1]
+      const withinTimeframe = message.date_unixtime - previousMessage?.date_unixtime <= 60
+      // const sameAuthor = currentMessage.from === previousMessage?.from
 
-    //prev and curr message must be within 60(?) seconds of each other
-    if (fromMe && plainText && hasLength && withinTimeframe) {
+      //previous and current message must be within 60(?) seconds of each other
+      return fromMe && plainText && hasLength && withinTimeframe
+    })
+    .reduce((accumulator, currentMessage) => {
       const date = new Date(currentMessage.date).toDateString()
-      const message = currentMessage.text
-      //accumulator[date] = accumulator[date] ? accumulator[date].push(message) : [message]
-      if (accumulator[date]) {
-        accumulator[date].push(message)
-      } else {
-        accumulator[date] = [message]
+      if (!accumulator[date]) {
+        accumulator[date] = []
       }
-    }
-
-    return accumulator
-  }, {})
+      accumulator[date].push(currentMessage.text)
+      return accumulator
+    }, {})
   return tirades
 }
 
