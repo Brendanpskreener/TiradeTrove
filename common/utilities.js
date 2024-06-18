@@ -2,8 +2,8 @@ const { removeStopwords } = require('stopword')
 
 const lameWords = require('./words')
 
-function countWords(data) {
-  const tally = data.messages.reduce((accumulator, message) => {
+function countWords(messages) {
+  const tally = messages.reduce((accumulator, message) => {
     const notFromMe = message.from !== 'Brendan Schreiner'
     const notPlainText = Array.isArray(message.text)
     const noLength = !message.text.length
@@ -31,4 +31,30 @@ function countWords(data) {
   return tally
 }
 
-module.exports = { countWords }
+function getTirades(messages) {
+  const tirades = messages.reduce((accumulator, currentMessage, currentIndex, array) => {
+    const fromMe = currentMessage.from === 'Brendan Schreiner'
+    const plainText = !Array.isArray(currentMessage.text)
+    const hasLength = currentMessage.text.length
+    const previousMessage = array[currentIndex - 1]
+    // const sameAuthor = currentMessage.from === previousMessage?.from
+    const withinTimeframe = currentMessage.date_unixtime - previousMessage?.date_unixtime <= 60
+
+    //prev and curr message must be within 60(?) seconds of each other
+    if (fromMe && plainText && hasLength && withinTimeframe) {
+      const date = new Date(currentMessage.date).toDateString()
+      const message = currentMessage.text
+      //accumulator[date] = accumulator[date] ? accumulator[date].push(message) : [message]
+      if (accumulator[date]) {
+        accumulator[date].push(message)
+      } else {
+        accumulator[date] = [message]
+      }
+    }
+
+    return accumulator
+  }, {})
+  return tirades
+}
+
+module.exports = { countWords, getTirades }

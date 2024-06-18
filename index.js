@@ -1,10 +1,12 @@
 const fs = require('node:fs/promises')
-const data = require('./chatLogs/logs.json')
+const { messages } = require('./chatLogs/logs.json')
 
-const { countWords } = require('./common/utilities')
+const { countWords, getTirades } = require('./common/utilities')
 
-const tally = countWords(data)
+const tally = countWords(messages)
+const tirades = getTirades(messages)
 
-const descendingOrder = Object.entries(tally).sort(([, a], [, b]) => b - a)
-console.log(descendingOrder)
-fs.writeFile('test.json', JSON.stringify(descendingOrder, null, 2))
+//const descendingOrder = Object.entries(tally).sort(([, a], [, b]) => b - a)
+console.log(tirades)
+//fs.writeFile('test.json', JSON.stringify(descendingOrder, null, 2))
+//fs.writeFile('tirades.json', JSON.stringify(tirades, null, 2))                                          
